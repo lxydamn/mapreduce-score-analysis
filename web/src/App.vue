@@ -1,11 +1,12 @@
 <template>
-  <NavBar></NavBar>
-  <router-view></router-view>
+  <div id="app">
+    <router-view/>
+  </div>
 </template>
-<script lang="ts" setup>
-import NavBar from './components/NavBar.vue'
 
-</script>
-<style scoped>
-
+<style>
+html, body, #app {
+  width: 100%;
+  height: 100%;
+}
 </style>

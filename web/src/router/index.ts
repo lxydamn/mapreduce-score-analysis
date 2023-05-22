@@ -1,21 +1,17 @@
-import {createRouter, createWebHistory} from "vue-router"
-import HelloWorldVue from '../components/HelloWorld.vue'
-
+import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
-    {
-        path:'/',
-        redirect:'/index',
-    },
-    {
-        path:'/index',
-        component: HelloWorldVue,
-    }
+  {
+    path: '/',
+    name: 'login',
+    // 按需加载
+    component: () => import('../views/Home.vue')
+  }
 ]
-const router = createRouter({
-    history: createWebHistory(),
-    routes,
-});
 
-export default router;
-  
+const router = createRouter({
+  history: createWebHistory(),
+  routes
+})
+
+export default router
