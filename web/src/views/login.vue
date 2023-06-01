@@ -32,14 +32,7 @@
           </template>
         </a-input-password>
       </a-form-item>
-        
-    
-        <a-form-item>
-          <a-form-item name="remember" no-style>
-            <a-checkbox v-model:checked="formState.remember">记住我</a-checkbox>
-          </a-form-item>
-        </a-form-item>
-        
+
         <div class="login-btn-box">
             <a-form-item >
                 <a-button type="primary" html-type="submit" class="login-form-button">
@@ -64,12 +57,16 @@
   </template>
   <script lang="ts">
   import { defineComponent, reactive } from 'vue';
+  import { useUserStore } from '../store/user';
+  import axios from 'axios'
+  import {notification} from 'ant-design-vue';
   import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
+import router from '../router';
   interface FormState {
     username: string;
     password: string;
-    remember: boolean;
   }
+  const userStore = useUserStore()
   export default defineComponent({
     components: {
       UserOutlined,
@@ -80,11 +77,38 @@
       const formState = reactive<FormState>({
         username: '',
         password: '',
-        remember: true,
       });
 
+      
+
       const onFinish = (values: any) => {
-        console.log('Success:', values);
+        axios ({
+          url:"http://localhost:8080/api/user/login",
+          method:'POST',
+          params: {
+            username: values.username,
+            password: values.password,
+          }
+        })
+        .then((resp) => {
+          const data = resp.data;
+          console.log(data)
+          if (data.error_info === 'success') {
+              userStore.$patch({
+                username: values.username,
+                id: data.id,
+                is_login:true,
+              })
+              sessionStorage.setItem("is_login", 'true')
+              router.push('/index')
+          } else {
+            notification.error({
+              message:'登录遇到错误',
+              description:data.error_info
+            })
+          }
+        })
+        
       };
   
       const onFinishFailed = (errorInfo: any) => {
