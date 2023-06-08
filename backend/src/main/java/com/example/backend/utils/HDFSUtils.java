@@ -4,11 +4,12 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
 import org.apache.kerby.util.IOUtil;
 
-import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
-import java.util.logging.SimpleFormatter;
+
 
 
 public class HDFSUtils{
@@ -18,8 +19,21 @@ public class HDFSUtils{
         configuration = new Configuration();
         configuration.set("fs.defaultFS", "hdfs://47.115.231.140:9000");
         configuration.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
+        configuration.set("dfs.client.use.datanode.hostname", "true");
+//        configuration.set("dfs.datanode.use.datanode.hostname", "true");
+        configuration.set("dfs.client.block.write.replace-datanode-on-failure.policy", "NEVER");
+        configuration.setBoolean("dfs.client.block.write.replace-datanode-on-failure.enabled", true);
     }
 
+    public void deleteFile(String file) throws IOException {
+        FileSystem fileSystem = FileSystem.get(configuration);
+        if (fileSystem.exists(new Path(file))) {
+            fileSystem.delete(new Path(file), true);
+        } else {
+            System.out.println("删除文件不存在");
+        }
+
+    }
     /**
      * 给定路径判断文件是否存在
      */
@@ -66,21 +80,42 @@ public class HDFSUtils{
     /*
      * 将HDFS文件中内容打印到终端中
      */
-    public void printContent(String filePath) {
-        try {
-            FileSystem fileSystem = FileSystem.get(configuration);
+    public void printContent(String filePath) throws IOException {
+        FileSystem fileSystem = FileSystem.get(configuration);
 
-            FSDataInputStream fsDataInputStream = fileSystem.open(new Path(filePath));
-
-            String content = IOUtil.readInput(fsDataInputStream);
-
-            System.out.println(content);
-
+        if (!fileSystem.exists(new Path(filePath))) {
+            System.out.println("文件不存在");
             fileSystem.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+            return;
         }
 
+        FSDataInputStream fsDataInputStream = fileSystem.open(new Path(filePath));
+
+        String content = IOUtil.readInput(fsDataInputStream);
+
+        System.out.println(content);
+
+
+
+
+    }
+
+    public void inputContent(String content, String path) throws IOException {
+
+            FileSystem fileSystem = FileSystem.get(configuration);
+            Path pathHdfs = new Path(path);
+            if (!fileSystem.exists(pathHdfs)) {
+                fileSystem.createNewFile(pathHdfs);
+                System.out.println("创建了文件");
+            }
+
+            FSDataOutputStream fsDataOutputStream = fileSystem.append(pathHdfs);
+
+            fsDataOutputStream.write(content.getBytes(StandardCharsets.UTF_8));
+
+            System.out.println("写入成功");
+
+            fileSystem.close();
     }
 
     /**
