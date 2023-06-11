@@ -3,17 +3,42 @@
 
     <div class="container">
         <div class="operator-box">
-            <a-upload
-                v-model:file-list="fileList"
-                name="file"
-                action="http://localhost:8080/api/upload"
-                @change="handleChange"
+          <a-button @click="uploadModal = true">
+            <template #icon>
+              <UploadOutlined />
+            </template>
+            上传成绩
+          </a-button>
+          <a-modal
+            v-model:visible="uploadModal"
+            title="上传文件"
+            :confirm-loading="uploadLoading"
+            @ok="handleOk"
+            @before-upload="beforeUpload"
+            okText="上传"
+            :closable="false"
+            :maskClosable="false"
+            cancelText="取消"
+          >
+            <a-upload-dragger
+              id="uploadRef"
+              v-model:fileList="fileList"
+              action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
+              name="files"
+              :multiple="true"
+              :before-upload="beforeUpload"
+              @drop="handleDrop"
+              @remove="handleRemove"
             >
-                <a-button>
-                <upload-outlined></upload-outlined>
-                上传成绩
-                </a-button>
-            </a-upload>
+              <p class="ant-upload-drag-icon">
+                <InboxOutlined/>
+              </p>
+              <p class="ant-upload-text">点击或拖动文件上传</p>
+              <p class="ant-upload-hint">
+                支持多个文件一起上传
+              </p>
+            </a-upload-dragger>
+          </a-modal>
         </div>
         
         <a-table bordered :pagination="{ pageSize : 6}" :data-source="dataSource" :columns="columns">
@@ -33,21 +58,29 @@
 </template>
   <script lang="ts">
  import { message } from 'ant-design-vue';
-import { UploadOutlined } from '@ant-design/icons-vue';
+import { UploadOutlined,InboxOutlined } from '@ant-design/icons-vue';
 import type { UploadChangeParam } from 'ant-design-vue';
 import { Ref, defineComponent, ref } from 'vue';
+import axios from 'axios';
 
-  interface DataItem {
-    filename:string
-    date:string
-  }
+interface DataItem {
+  filename:string
+  date:string
+}
   export default defineComponent({
     components: {
-
+      UploadOutlined,
+      InboxOutlined,
     },
     setup() {
         const fileList = ref([])
+
         const dataSource: Ref<DataItem[]> = ref([]);
+
+        let uploadModal = ref(false)
+
+        const uploadLoading = ref<boolean>(false);
+
         const columns = [
           {
               title: '成绩文件',
@@ -66,25 +99,80 @@ import { Ref, defineComponent, ref } from 'vue';
               dataIndex:'operation',
           },
       ];
-      const handleChange = (info: UploadChangeParam) => {
-      if (info.file.status !== 'uploading') {
-        console.log(info.file, info.fileList);
-        fileList.value = []
-      }
-      if (info.file.status === 'done') {
-        message.success(`${info.file.name} file uploaded successfully`);
-        fileList.value = []
-      } else if (info.file.status === 'error') {
-        message.error(`${info.file.name} file upload failed.`);
-        fileList.value = []
-      }
       
+      const beforeUpload = () => {
+        console.log("before")
+        
+        fileList.value = [...fileList.value]
+        return false;
+      };
+      
+      const handleRemove= (file: File) => {
+        console.log("removing")
+        if (fileList.value == null || fileList.value.length == 0) {
+            return
+        }
+        const index = fileList.value.indexOf(file);
+        const newFileList = fileList.value.slice();
+        newFileList.splice(index, 1);
+        fileList.value = newFileList;   
+     };
+
+      const handleOk = () => {
+        
+        if(fileList.value.length ==0) return
+        
+        const formData = new FormData()
+        uploadLoading.value = true;
+
+        for (let i of fileList.value) {
+          formData.append('files', i.originFileObj)
+        }
+
+
+        axios('http://localhost:8080/api/upload', {
+          method: 'POST',
+          data: formData,
+        })
+          .then(() => {
+            fileList.value = [];
+            uploadLoading.value = false;
+            message.success('upload successfully.');
+            uploadModal.value=false
+          })
+          .catch(() => {
+            uploadLoading.value = false;
+            message.error('upload failed.');
+          });
+      }
+
+      const uploadChange = (info: UploadChangeParam) => {
+        const status = info.file.status;
+        if (status !== 'uploading') {
+          console.log(info.file, info.fileList);
+        }
+        if (status === 'done') {
+          message.success(`${info.file.name} file uploaded successfully.`);
+        } else if (status === 'error') {
+          message.error(`${info.file.name} file upload failed.`);
+        }
     };
+
+      const handleDrop =  (e: DragEvent) => {
+        console.log(e);
+      }
+
 
       return {
         columns,
         dataSource,
-        handleChange,
+        uploadChange,
+        uploadLoading,
+        handleRemove,
+        beforeUpload,
+        uploadModal,
+        handleOk,
+        handleDrop,
         fileList,
       };
     },
