@@ -2,27 +2,33 @@ package com.example.backend.utils;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
-import org.apache.kerby.util.IOUtil;
-
+import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Scanner;
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 
 public class HDFSUtils{
 
     private final Configuration configuration;
-    public HDFSUtils() {
+
+    private final FileSystem fileSystem;
+
+    private static final String BASE_URL = "hdfs://47.115.231.140:9000/inputs/";
+
+    private static final String RECORD_BASE_URL = "hdfs://47.115.231.140:9000/records/";
+
+    public HDFSUtils() throws IOException {
         configuration = new Configuration();
         configuration.set("fs.defaultFS", "hdfs://47.115.231.140:9000");
         configuration.set("fs.hdfs.impl", "org.apache.hadoop.hdfs.DistributedFileSystem");
         configuration.set("dfs.client.use.datanode.hostname", "true");
-//        configuration.set("dfs.datanode.use.datanode.hostname", "true");
         configuration.set("dfs.client.block.write.replace-datanode-on-failure.policy", "NEVER");
         configuration.setBoolean("dfs.client.block.write.replace-datanode-on-failure.enabled", true);
+
+        fileSystem = FileSystem.get(configuration);
     }
 
     public void deleteFile(String file) throws IOException {
@@ -34,179 +40,90 @@ public class HDFSUtils{
         }
 
     }
-    /**
-     * 给定路径判断文件是否存在
-     */
-    public boolean fileIsExist(String fileName) {
-
-        try {
-
-            FileSystem fs = FileSystem.get(configuration);
-
-            if(fs.exists(new Path(fileName))) {
-                System.out.println("exist");
-                fs.close();
-                return true;
-            } else {
-                System.out.println("no exist");
-                fs.close();
-                return false;
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return true;
-    }
 
     /**
-     * 传入本地文件路径
-     * 上传到HDFS系统中的根路径
+     * 写入内容到文件中
      */
-    public void pushLocalFileToHDFS(String localPath) {
-
-        try {
-            FileSystem fileSystem = FileSystem.get(configuration);
-            fileSystem.copyFromLocalFile(new Path(localPath), new Path("/"));
-            fileSystem.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
-
-
-    /*
-     * 将HDFS文件中内容打印到终端中
-     */
-    public void printContent(String filePath) throws IOException {
-        FileSystem fileSystem = FileSystem.get(configuration);
-
-        if (!fileSystem.exists(new Path(filePath))) {
-            System.out.println("文件不存在");
-            fileSystem.close();
-            return;
-        }
-
-        FSDataInputStream fsDataInputStream = fileSystem.open(new Path(filePath));
-
-        String content = IOUtil.readInput(fsDataInputStream);
-
-        System.out.println(content);
-
-
-
-
-    }
-
     public void inputContent(String content, String path) throws IOException {
 
-            FileSystem fileSystem = FileSystem.get(configuration);
             Path pathHdfs = new Path(path);
+
             if (!fileSystem.exists(pathHdfs)) {
-                fileSystem.createNewFile(pathHdfs);
-                System.out.println("创建了文件");
+                return;
             }
 
             FSDataOutputStream fsDataOutputStream = fileSystem.append(pathHdfs);
 
             fsDataOutputStream.write(content.getBytes(StandardCharsets.UTF_8));
+    }
 
-            System.out.println("写入成功");
 
-            fileSystem.close();
+    /**
+     * 防止文件重名
+     */
+    private String createFile(String path) throws IOException {
+
+        int i = 0;
+        String[] split = path.split("\\.");
+
+        if (!fileSystem.exists(new Path(BASE_URL + path))) {
+            fileSystem.createNewFile(new Path(BASE_URL + path));
+            return BASE_URL + path;
+        }
+
+        while (fileSystem.exists(new Path(BASE_URL + split[0] + "_" + i + "." + split[1]))) {
+            i ++;
+        }
+
+        boolean ok = fileSystem.createNewFile(new Path(BASE_URL + split[0] + "_" + i + "." + split[1]));
+        return BASE_URL + split[0] + "_" + i + "." + split[1];
     }
 
     /**
-     * 列出文件的权限等信息
+     * 上传文件至hdfs系统
+     * @param files 文件
+     * @throws IOException 异常
      */
-    public void listInfoOfFile(String filePath) {
-        try {
+    public void uploadFiles(MultipartFile[] files) throws IOException {
 
-            FileSystem fileSystem = FileSystem.get(configuration);
-
-            Path path = new Path(filePath);
-
-            FileStatus fileStatus = fileSystem.getFileStatus(path);
-
-            printFileStatus(fileStatus);
-
-            fileSystem.close();
-        } catch (Exception e) {
-            e.printStackTrace();
+        for (MultipartFile file : files) {
+            String name = createFile(Objects.requireNonNull(file.getOriginalFilename()));
+            inputContent(new String(file.getBytes(), StandardCharsets.UTF_8), name);
         }
-    }
 
-    private void printFileStatus(FileStatus fileStatus) {
-        System.out.println("文件路径：" + fileStatus.getPath());
-        System.out.println("读写权限：" + fileStatus.getPermission());
-        System.out.println("文件大小：" + fileStatus.getLen());
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        System.out.println("修改时间：" + formatter.format(new Date(fileStatus.getModificationTime())));
-    }
-
-    public void listInfoOfDir(String dirPath) {
-        try {
-            FileSystem fileSystem = FileSystem.get(configuration);
-
-            Path path = new Path(dirPath);
-
-            FileStatus[] fileStatuses = fileSystem.listStatus(path);
-
-            for(FileStatus fileStatus : fileStatuses) {
-                printFileStatus(fileStatus);
-                if(fileStatus.isDirectory()) {
-                    System.out.println("children：");
-                    System.out.println("==========================");
-                    listInfoOfDir(fileStatus.getPath().toString());
-                    System.out.println("==========================");
-                }
-
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
-
-    public void deleteOrCreateFile(String filePath) {
-        try {
-            FileSystem fileSystem = FileSystem.get(configuration);
-            Scanner scanner = new Scanner(System.in);
-            Path path = new Path(filePath);
-
-            if (fileSystem.exists(path)) {
-                System.out.println("文件存在！");
-
-            } else {
-                fileSystem.createNewFile(path);
-                System.out.println("创建成功！");
-            }
-
-            fileSystem.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 
     /**
-     * filepath -> toPath 移动
+     * 读出成绩文件列表
      */
-    public void removeFile(String filePath, String toPath) {
+    public List<String> getInputFiles() throws IOException {
 
-        try {
-            FileSystem fileSystem = FileSystem.get(configuration);
+        List<String> list = new ArrayList<>();
 
-            FileUtil.copy(fileSystem, new Path(filePath), fileSystem, new Path(toPath),true, true, configuration);
-        } catch (Exception e) {
-            e.printStackTrace();
+        FileStatus[] fileStatuses = fileSystem.listStatus(new Path(BASE_URL));
+
+        for (FileStatus fileStatus : fileStatuses) {
+            list.add(fileStatus.getPath().getName());
         }
 
-
+        return list;
     }
+
+    /**
+     * 读出记录文件列表
+     */
+    public List<String> getRecordFiles() throws IOException {
+        List<String> list = new ArrayList<>();
+
+        FileStatus[] fileStatuses = fileSystem.listStatus(new Path(RECORD_BASE_URL));
+
+        for (FileStatus fileStatus : fileStatuses) {
+            list.add(fileStatus.getPath().getName());
+        }
+
+        return list;
+    }
+
 
 
 }
