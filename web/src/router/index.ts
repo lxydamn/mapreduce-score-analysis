@@ -10,6 +10,11 @@ const routes = [
         path:'/index',
         name:'index',
         component:() => import(/* webpackChunkName: "index" */ '../views/index.vue'),
+    },
+    {
+        path:'/record',
+        name:'record',
+        component:() => import(/* webpackChunkName: "record" */ '../views/record.vue'),
     }
 
 ];

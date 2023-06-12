@@ -1,11 +1,16 @@
 package com.example.backend.utils;
 
+import com.example.backend.pojo.GFile;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
+import org.apache.hadoop.io.IOUtils;
+import org.apache.kerby.util.IOUtil;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -18,6 +23,7 @@ public class HDFSUtils{
 
     private static final String BASE_URL = "hdfs://47.115.231.140:9000/inputs/";
 
+    private static final String RESULT_BASE_URL = "hdfs://47.115.231.140:9000/output/";
     private static final String RECORD_BASE_URL = "hdfs://47.115.231.140:9000/records/";
 
     public HDFSUtils() throws IOException {
@@ -53,9 +59,10 @@ public class HDFSUtils{
             }
 
             FSDataOutputStream fsDataOutputStream = fileSystem.append(pathHdfs);
-
+            System.out.println(content);
             fsDataOutputStream.write(content.getBytes(StandardCharsets.UTF_8));
     }
+
 
 
     /**
@@ -96,35 +103,55 @@ public class HDFSUtils{
     /**
      * 读出成绩文件列表
      */
-    public List<String> getInputFiles() throws IOException {
+    public List<GFile> getInputFiles() throws IOException {
 
-        List<String> list = new ArrayList<>();
-
-        FileStatus[] fileStatuses = fileSystem.listStatus(new Path(BASE_URL));
-
-        for (FileStatus fileStatus : fileStatuses) {
-            list.add(fileStatus.getPath().getName());
-        }
-
-        return list;
+        return getGFiles(BASE_URL);
     }
 
     /**
      * 读出记录文件列表
      */
-    public List<String> getRecordFiles() throws IOException {
-        List<String> list = new ArrayList<>();
+    public List<GFile> getRecordFiles() throws IOException {
+        return getGFiles(RECORD_BASE_URL);
+    }
 
-        FileStatus[] fileStatuses = fileSystem.listStatus(new Path(RECORD_BASE_URL));
+    private List<GFile> getGFiles(String recordBaseUrl) throws IOException {
+        List<GFile> list = new ArrayList<>();
 
+        FileStatus[] fileStatuses = fileSystem.listStatus(new Path(recordBaseUrl));
+
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         for (FileStatus fileStatus : fileStatuses) {
-            list.add(fileStatus.getPath().getName());
+            list.add(new GFile(
+                    fileStatus.getPath().getName(),
+                    fileStatus.getLen(),
+                    simpleDateFormat.format(new Date(fileStatus.getModificationTime()))
+            ));
         }
 
         return list;
     }
 
+    public String readContent(String file ) throws IOException {
+        Path path = new Path(RESULT_BASE_URL + file);
 
+        if (! fileSystem.exists(path)) {
+            return null;
+        }
+        FSDataInputStream open = fileSystem.open(path);
+
+        return IOUtil.readInput(open);
+    }
+//    /**
+//     * 开始mapreduce 任务时
+//     */
+//    public String startMapReduce(String[] files) {
+//
+//    }
+//
+//    public void endMapReduce(String dirName) {
+//
+//    }
 
 }
 
