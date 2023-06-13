@@ -21,6 +21,7 @@ public class HDFSUtils{
 
     private final FileSystem fileSystem;
 
+    private static final String BASE_LINK = "hdfs://47.115.231.140:9000/";
     private static final String BASE_URL = "hdfs://47.115.231.140:9000/inputs/";
 
     private static final String RESULT_BASE_URL = "hdfs://47.115.231.140:9000/output/";
@@ -132,26 +133,33 @@ public class HDFSUtils{
         return list;
     }
 
-    public String readContent(String file ) throws IOException {
-        Path path = new Path(RESULT_BASE_URL + file);
+    /**
+     * 读取文件内容
+     */
+    public String readContent(String file) throws IOException {
+        Path path = new Path(RECORD_BASE_URL + file);
 
-        if (! fileSystem.exists(path)) {
+        if (!fileSystem.exists(path)) {
             return null;
         }
         FSDataInputStream open = fileSystem.open(path);
 
         return IOUtil.readInput(open);
     }
-//    /**
-//     * 开始mapreduce 任务时
-//     */
-//    public String startMapReduce(String[] files) {
-//
-//    }
-//
-//    public void endMapReduce(String dirName) {
-//
-//    }
+
+    /**
+     * 移动 output 的内容到  record
+     */
+    public void moveToRecord(String fileName, String reName, String type) throws IOException {
+        Path path = new Path(BASE_LINK + fileName + "/part-r-00000");
+        Path objPath = new Path(RECORD_BASE_URL + fileName + "-" + type);
+        if (!fileSystem.exists(path)) {
+            return;
+        }
+        fileSystem.rename(path, objPath);
+        fileSystem.delete(new Path(BASE_LINK + fileName), true);
+    }
+
 
 }
 

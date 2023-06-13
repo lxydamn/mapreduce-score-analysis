@@ -1,4 +1,4 @@
-package com.example.backend.mapred;
+package com.example.backend.mapred.utils;
 
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
