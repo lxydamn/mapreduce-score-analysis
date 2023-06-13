@@ -38,7 +38,7 @@ public class AverageMR {
     public void run (Boolean desc, String[] files, String output)
             throws IOException, InterruptedException, ClassNotFoundException {
 
-        Job job = new Job(configuration, "WordCount");
+        Job job = new Job(configuration, "Average");
         job.setJarByClass(AverageMR.class);
         job.setMapperClass(AverageMR.avgMapper.class);
         job.setReducerClass(AverageMR.avgReducer.class);
