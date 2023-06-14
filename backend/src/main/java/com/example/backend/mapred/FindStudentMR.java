@@ -21,7 +21,7 @@ public class FindStudentMR {
 
     static {
         try {
-            System.load("D:\\hadoop-3.1.3\\bin\\hadoop.dll");
+            System.load("C:\\hadoop-3.1.3\\bin\\hadoop.dll");
         } catch (UnsatisfiedLinkError e) {
             System.err.println("Native code library failed to load.\n" + e);
             System.exit(1);

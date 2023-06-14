@@ -34,7 +34,6 @@ public class WholeFileRecordReader extends RecordReader<Text, Text> {
     public boolean nextKeyValue() throws IOException, InterruptedException {
 
         if (! finishConverting) {
-            int len = (int) fileSplit.getLength();
             Path file = fileSplit.getPath();
             FileSystem fs = file.getFileSystem(jobContext.getConfiguration());
             FSDataInputStream in = fs.open(file);

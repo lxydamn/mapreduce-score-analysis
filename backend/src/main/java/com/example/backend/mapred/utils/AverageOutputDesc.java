@@ -13,8 +13,6 @@ public class AverageOutputDesc implements WritableComparable<AverageOutputDesc> 
 
     protected Text course;
     protected DoubleWritable score;
-    protected IntWritable max;
-    protected IntWritable min;
 
     public AverageOutputDesc() {
 
@@ -23,36 +21,14 @@ public class AverageOutputDesc implements WritableComparable<AverageOutputDesc> 
     @Override
     public String toString() {
         return "course = " + course +
-                ", score = " + score +
-                ", max = " + max +
-                ", min = " + min;
+                ", score = " + score;
     }
 
 
 
-    public IntWritable getMax() {
-        return max;
-    }
-
-    public void setMax(IntWritable max) {
-        this.max = max;
-    }
-
-    public IntWritable getMin() {
-        return min;
-    }
-
-    public void setMin(IntWritable min) {
-        this.min = min;
-    }
-
-
-
-    public AverageOutputDesc(Text course, DoubleWritable score, IntWritable max, IntWritable min) {
+    public AverageOutputDesc(Text course, DoubleWritable score) {
         this.course = course;
         this.score = score;
-        this.max = max;
-        this.min = min;
     }
 
     public Text getCourse() {
@@ -75,22 +51,16 @@ public class AverageOutputDesc implements WritableComparable<AverageOutputDesc> 
         this.score = score;
     }
 
-
-
     @Override
     public void write(DataOutput dataOutput) throws IOException {
         dataOutput.writeUTF(course.toString());
         dataOutput.writeDouble(score.get());
-        dataOutput.writeInt(max.get());
-        dataOutput.writeInt(min.get());
     }
 
     @Override
     public void readFields(DataInput dataInput) throws IOException {
         course = new Text(dataInput.readUTF());
         score = new DoubleWritable(dataInput.readDouble());
-        max = new IntWritable(dataInput.readInt());
-        min = new IntWritable(dataInput.readInt());
     }
 
     @Override
@@ -105,6 +75,4 @@ public class AverageOutputDesc implements WritableComparable<AverageOutputDesc> 
 
         return this.getCourse().compareTo(o.getCourse());
     }
-
-
 }

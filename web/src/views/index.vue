@@ -1,6 +1,4 @@
 <template>
-
-
   <div class="container">
     <div class="operator-box">
       <a-button @click="uploadModal = true">
@@ -13,7 +11,7 @@
         <template #icon>
           <FileSearchOutlined />
         </template>
-          查看历史结果
+        查看历史结果
       </a-button>
       <a-modal v-model:visible="uploadModal" title="上传文件" :confirm-loading="uploadLoading" @ok="handleOk"
         @before-upload="beforeUpload" okText="上传" :closable="false" :maskClosable="false" cancelText="取消">
@@ -44,7 +42,7 @@
 </template>
 <script lang="ts">
 import { message } from 'ant-design-vue';
-import { UploadOutlined, InboxOutlined,FileSearchOutlined} from '@ant-design/icons-vue';
+import { UploadOutlined, InboxOutlined, FileSearchOutlined } from '@ant-design/icons-vue';
 import type { UploadChangeParam } from 'ant-design-vue';
 import { Ref, defineComponent, ref } from 'vue';
 import axios from 'axios';
@@ -62,7 +60,7 @@ export default defineComponent({
     FileSearchOutlined,
     InboxOutlined,
     RouterLink
-},
+  },
   setup() {
     const fileList = ref([])
 
@@ -196,7 +194,6 @@ export default defineComponent({
 .container {
   padding: 2rem;
 }
-
 </style>
   
   

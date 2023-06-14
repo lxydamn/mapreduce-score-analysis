@@ -15,7 +15,7 @@ import java.io.IOException;
 public class AverageMR {
     static {
         try {
-            System.load("D:\\hadoop-3.1.3\\bin\\hadoop.dll");
+            System.load("C:\\hadoop-3.1.3\\bin\\hadoop.dll");
         } catch (UnsatisfiedLinkError e) {
             System.err.println("Native code library failed to load.\n" + e);
             System.exit(1);
@@ -44,8 +44,10 @@ public class AverageMR {
         job.setReducerClass(AverageMR.avgReducer.class);
         job.setMapOutputValueClass(DoubleWritable.class);
         job.setMapOutputKeyClass(AverageOutputDesc.class);
+
         job.setOutputKeyClass(AverageOutputDesc.class);
         job.setOutputValueClass(NullWritable.class);
+
         job.setInputFormatClass(MyInputFormat.class);
         job.setGroupingComparatorClass(AverageGroupComparator.class);
 
@@ -75,10 +77,7 @@ public class AverageMR {
                 for (int j = 2; j < cells.length; j++) {
                     subj.set(headers[j]);
                     score.set(Double.parseDouble(cells[j]));
-                    context.write(
-                            new AverageOutputDesc(subj, score, new IntWritable(-1), new IntWritable(105)),
-                            score
-                    );
+                    context.write(new AverageOutputDesc(subj, score), score);
                 }
             }
         }
@@ -90,19 +89,13 @@ public class AverageMR {
         protected void reduce(AverageOutputDesc key, Iterable<DoubleWritable> values, Reducer<AverageOutputDesc, DoubleWritable, AverageOutputDesc, NullWritable>.Context context) throws IOException, InterruptedException {
             int n = 0;
             double sum = 0;
-            int max = -1;
-            int min = 105;
 
             for (DoubleWritable value : values) {
                 sum += value.get();
                 n ++;
-                if (max < value.get()) max = (int) value.get();
-                if (min > value.get()) min = (int) value.get();
             }
             if(n != 0) sum /= n;
             key.setScore(new DoubleWritable(sum));
-            key.setMax(new IntWritable(max));
-            key.setMin(new IntWritable(min));
             context.write(key, NullWritable.get());
         }
     }

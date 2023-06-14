@@ -129,7 +129,6 @@ public class HDFSUtils{
                     simpleDateFormat.format(new Date(fileStatus.getModificationTime()))
             ));
         }
-
         return list;
     }
 
