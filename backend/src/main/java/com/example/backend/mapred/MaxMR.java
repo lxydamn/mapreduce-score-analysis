@@ -96,7 +96,8 @@ public class MaxMR {
                 max = Math.max(value.get(), max);
             }
             result.set(max);
-            context.write(key,result);
+            Text text = new Text(key.toString() + "  最高分:");
+            context.write(text,result);
         }
 
     }

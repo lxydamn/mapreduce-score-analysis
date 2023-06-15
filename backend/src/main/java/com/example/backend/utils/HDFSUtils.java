@@ -23,8 +23,6 @@ public class HDFSUtils{
 
     private static final String BASE_LINK = "hdfs://47.115.231.140:9000/";
     private static final String BASE_URL = "hdfs://47.115.231.140:9000/inputs/";
-
-    private static final String RESULT_BASE_URL = "hdfs://47.115.231.140:9000/output/";
     private static final String RECORD_BASE_URL = "hdfs://47.115.231.140:9000/records/";
 
     public HDFSUtils() throws IOException {

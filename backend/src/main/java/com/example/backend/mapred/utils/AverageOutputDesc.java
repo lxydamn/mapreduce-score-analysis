@@ -21,10 +21,8 @@ public class AverageOutputDesc implements WritableComparable<AverageOutputDesc> 
     @Override
     public String toString() {
         return "course = " + course +
-                ", score = " + score;
+                ", 平均分 = " + score;
     }
-
-
 
     public AverageOutputDesc(Text course, DoubleWritable score) {
         this.course = course;

@@ -94,7 +94,8 @@ public class MinMR {
                 min = Math.min(value.get(), min);
             }
             result.set(min);
-            context.write(key,result);
+            Text text = new Text(key.toString() + "  最低分:");
+            context.write(text,result);
         }
     }
 }

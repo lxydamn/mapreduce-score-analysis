@@ -93,15 +93,15 @@ public class FindStudentMR {
         @Override
         protected void setup(Reducer<Text, Text, Text, NullWritable>.Context context) throws IOException, InterruptedException {
             student = context.getConfiguration().get("student");
+
         }
 
         @Override
         protected void reduce(Text key, Iterable<Text> values, Reducer<Text, Text, Text, NullWritable>.Context context) throws IOException, InterruptedException {
-
             if (! student.equals(key.toString())) {
                 return;
             }
-
+            context.write(new Text("学生姓名：" + student), NullWritable.get());
             for (Text value : values) {
                 output.set(value);
                 context.write(output, NullWritable.get());

@@ -94,7 +94,8 @@ public class CountPeopleMR {
                 sum += value.get();
             }
             result.set(sum);
-            context.write(key,result);
+            Text text = new Text(key.toString() + "  选修人数:");
+            context.write(text,result);
         }
 
     }

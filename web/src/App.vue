@@ -1,5 +1,10 @@
 <template>
-  <div class="logo">MapReduce成绩分析</div>
+  <div class="logo">
+    <router-link to="index">
+      MapReduce成绩分析
+    </router-link>
+    
+  </div>
   <RouterView></RouterView>
 </template>
 

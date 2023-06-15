@@ -35,6 +35,8 @@ public class AverageMapServiceImpl implements AverageMapService {
             resp.put("error_info", "计算失败");
             return resp;
         }
+        resp.put("error_info", "success");
+        resp.put("filePath", resultName + "-" + "average");
         return resp;
     }
 }

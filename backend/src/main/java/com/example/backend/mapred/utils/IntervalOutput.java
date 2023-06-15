@@ -40,8 +40,20 @@ public class IntervalOutput implements WritableComparable<IntervalOutput> {
 
     @Override
     public String toString() {
-        return "course=" + course +
-                ", type=" + type;
+        String interval;
+        if(type.get() == 1) {
+            interval = "60分以下";
+        } else if (type.get() == 2) {
+            interval = "60~69分人数: ";
+        } else if (type.get() == 3) {
+            interval = "70~79分人数: ";
+        } else if (type.get() == 4) {
+            interval = "80~89分人数: ";
+        } else {
+            interval = "90~100分人数: ";
+        }
+        return "course = " + course +
+                ", " + interval;
     }
 
     @Override
