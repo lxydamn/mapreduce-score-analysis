@@ -21,7 +21,7 @@ public class FindStudentMR {
 
     static {
         try {
-            System.load("C:\\hadoop-3.1.3\\bin\\hadoop.dll");
+            System.load("D:\\hadoop-3.1.3\\bin\\hadoop.dll");
         } catch (UnsatisfiedLinkError e) {
             System.err.println("Native code library failed to load.\n" + e);
             System.exit(1);
@@ -69,6 +69,9 @@ public class FindStudentMR {
         private final Text name = new Text();
         private final Text courseAndScore = new Text();
 
+        /**
+         * 分解成绩文件内容，以（名字，（课程，成绩））输出
+         */
         @Override
         protected void map(Object key, Text value, Mapper<Object, Text, Text, Text>.Context context) throws IOException, InterruptedException {
             String[] split = value.toString().split("\n");
@@ -90,12 +93,17 @@ public class FindStudentMR {
         private String student = "";
         private final Text output = new Text();
 
+        /**
+         * 读出要查找的学生的名字
+         */
         @Override
         protected void setup(Reducer<Text, Text, Text, NullWritable>.Context context) throws IOException, InterruptedException {
             student = context.getConfiguration().get("student");
-
         }
 
+        /**
+         * 匹配相等的学生名字
+         */
         @Override
         protected void reduce(Text key, Iterable<Text> values, Reducer<Text, Text, Text, NullWritable>.Context context) throws IOException, InterruptedException {
             if (! student.equals(key.toString())) {

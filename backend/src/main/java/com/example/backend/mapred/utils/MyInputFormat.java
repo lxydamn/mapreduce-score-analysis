@@ -10,7 +10,9 @@ import java.io.IOException;
 public class MyInputFormat extends FileInputFormat<Text, Text> {
 
     @Override
-    public RecordReader<Text, Text> createRecordReader(InputSplit inputSplit, TaskAttemptContext taskAttemptContext) throws IOException, InterruptedException {
+    public RecordReader<Text, Text>
+    createRecordReader(InputSplit inputSplit, TaskAttemptContext taskAttemptContext)
+            throws IOException, InterruptedException {
         return new WholeFileRecordReader();
     }
 }

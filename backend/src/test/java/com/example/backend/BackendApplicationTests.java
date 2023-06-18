@@ -1,9 +1,6 @@
 package com.example.backend;
 
-import com.example.backend.mapred.AverageMR;
-import com.example.backend.mapred.MaxMR;
-import com.example.backend.mapred.MinMR;
-import com.example.backend.mapred.StatisticIntervalMR;
+import com.example.backend.mapred.*;
 import com.example.backend.utils.HDFSUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -16,9 +13,7 @@ class BackendApplicationTests {
 
     @Test
     void contextLoads() throws IOException {
-//        MinMR minMR = new MinMR();
-        //FindStudentMR findStudentMR = new FindStudentMR();
-        AverageMR averageMR = new AverageMR();
+        FindStudentMR findStudentMR = new FindStudentMR();
         String[] files = new String[] {"test.txt", "test1.txt"};
         try {
             String resultName = UUID
@@ -26,13 +21,11 @@ class BackendApplicationTests {
                     .toString()
                     .replace("-", "")
                     .substring(0, 8);;
-            //findStudentMR.run("Rose", files, resultName);
-            averageMR.run(true, files, resultName);
-//            minMR.run(files, resultName);
+            findStudentMR.run("Rose", files, resultName);
 
             HDFSUtils utils = new HDFSUtils();
-            utils.moveToRecord(resultName,"11", "avg");
-            System.out.println(utils.readContent(resultName + "-" + "avg"));
+            utils.moveToRecord(resultName,"11", "find");
+            System.out.println(utils.readContent(resultName + "-" + "find"));
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }

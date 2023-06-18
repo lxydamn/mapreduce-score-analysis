@@ -1,0 +1,6 @@
+Id name math English
+001 Jerry 81 70
+002 Rose 50 90
+003 William 90 87
+004 Lucy 70 88
+005 Steven 62 73

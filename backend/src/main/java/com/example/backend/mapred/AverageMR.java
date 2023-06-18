@@ -13,9 +13,11 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import java.io.IOException;
 
 public class AverageMR {
+
+    // 手动加载链接
     static {
         try {
-            System.load("C:\\hadoop-3.1.3\\bin\\hadoop.dll");
+            System.load("D:\\hadoop-3.1.3\\bin\\hadoop.dll");
         } catch (UnsatisfiedLinkError e) {
             System.err.println("Native code library failed to load.\n" + e);
             System.exit(1);
@@ -40,14 +42,25 @@ public class AverageMR {
 
         Job job = new Job(configuration, "Average");
         job.setJarByClass(AverageMR.class);
+
         job.setMapperClass(AverageMR.avgMapper.class);
         job.setReducerClass(AverageMR.avgReducer.class);
+
+        /*
+          设置Mapper输出键值对
+         */
         job.setMapOutputValueClass(DoubleWritable.class);
         job.setMapOutputKeyClass(AverageOutputDesc.class);
 
+        /*
+            设置Reducer输出键值对
+         */
         job.setOutputKeyClass(AverageOutputDesc.class);
         job.setOutputValueClass(NullWritable.class);
 
+        /*
+            设置读入文件的形式
+         */
         job.setInputFormatClass(MyInputFormat.class);
         job.setGroupingComparatorClass(AverageGroupComparator.class);
 
@@ -62,12 +75,22 @@ public class AverageMR {
 
     }
 
-    public static class avgMapper extends Mapper<Object, Text, AverageOutputDesc, DoubleWritable> {
+    public static class avgMapper
+            extends Mapper<Object, Text, AverageOutputDesc, DoubleWritable>
+    {
         private final Text subj = new Text();
         private final DoubleWritable score = new DoubleWritable();
 
+        /**
+         *  拆解 文件内容 以 （课程，成绩）为key
+         */
         @Override
-        protected void map(Object key, Text value, Mapper<Object, Text, AverageOutputDesc, DoubleWritable>.Context context) throws IOException, InterruptedException {
+        protected void map(
+                Object key,
+                Text value,
+                Mapper<Object, Text, AverageOutputDesc, DoubleWritable>.Context context)
+                throws IOException, InterruptedException
+        {
             String[] split = value.toString().split("\n");
             String[] headers = split[0].split("\\s+");
 
@@ -83,10 +106,20 @@ public class AverageMR {
         }
     }
 
-    public static class avgReducer extends Reducer<AverageOutputDesc, DoubleWritable, AverageOutputDesc, NullWritable> {
 
+    public static class avgReducer extends
+            Reducer<AverageOutputDesc, DoubleWritable, AverageOutputDesc, NullWritable>
+    {
+        /**
+         *  将values成绩求和并求平均
+         */
         @Override
-        protected void reduce(AverageOutputDesc key, Iterable<DoubleWritable> values, Reducer<AverageOutputDesc, DoubleWritable, AverageOutputDesc, NullWritable>.Context context) throws IOException, InterruptedException {
+        protected void reduce(
+                AverageOutputDesc key,
+                Iterable<DoubleWritable> values,
+                Reducer<AverageOutputDesc, DoubleWritable, AverageOutputDesc, NullWritable>.Context context)
+                throws IOException, InterruptedException
+        {
             int n = 0;
             double sum = 0;
 

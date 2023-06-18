@@ -17,12 +17,15 @@ import java.util.Objects;
 
 public class HDFSUtils{
 
+    // 文件系统配置信息
     private final Configuration configuration;
-
+    // 文件系统操作
     private final FileSystem fileSystem;
-
+    // 基本文件路径
     private static final String BASE_LINK = "hdfs://47.115.231.140:9000/";
+    // 输入文件基本路径
     private static final String BASE_URL = "hdfs://47.115.231.140:9000/inputs/";
+    // 成绩分析结果文件基本路径
     private static final String RECORD_BASE_URL = "hdfs://47.115.231.140:9000/records/";
 
     public HDFSUtils() throws IOException {
@@ -56,7 +59,6 @@ public class HDFSUtils{
             if (!fileSystem.exists(pathHdfs)) {
                 return;
             }
-
             FSDataOutputStream fsDataOutputStream = fileSystem.append(pathHdfs);
             System.out.println(content);
             fsDataOutputStream.write(content.getBytes(StandardCharsets.UTF_8));
@@ -66,6 +68,8 @@ public class HDFSUtils{
 
     /**
      * 防止文件重名
+     * 循环在文件名后添加1,2,3...n
+     * 并将创建好后的文件名返回
      */
     private String createFile(String path) throws IOException {
 
@@ -119,6 +123,9 @@ public class HDFSUtils{
 
         FileStatus[] fileStatuses = fileSystem.listStatus(new Path(recordBaseUrl));
 
+        /**
+         * 将所有的文件全部转化为GFile文件类型
+         */
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         for (FileStatus fileStatus : fileStatuses) {
             list.add(new GFile(
