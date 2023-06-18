@@ -65,7 +65,6 @@ public class AverageMR {
     public static class avgMapper extends Mapper<Object, Text, AverageOutputDesc, DoubleWritable> {
         private final Text subj = new Text();
         private final DoubleWritable score = new DoubleWritable();
-
         @Override
         protected void map(Object key, Text value, Mapper<Object, Text, AverageOutputDesc, DoubleWritable>.Context context) throws IOException, InterruptedException {
             String[] split = value.toString().split("\n");
@@ -84,7 +83,6 @@ public class AverageMR {
     }
 
     public static class avgReducer extends Reducer<AverageOutputDesc, DoubleWritable, AverageOutputDesc, NullWritable> {
-
         @Override
         protected void reduce(AverageOutputDesc key, Iterable<DoubleWritable> values, Reducer<AverageOutputDesc, DoubleWritable, AverageOutputDesc, NullWritable>.Context context) throws IOException, InterruptedException {
             int n = 0;

@@ -16,8 +16,6 @@ class BackendApplicationTests {
 
     @Test
     void contextLoads() throws IOException {
-//        MinMR minMR = new MinMR();
-        //FindStudentMR findStudentMR = new FindStudentMR();
         AverageMR averageMR = new AverageMR();
         String[] files = new String[] {"test.txt", "test1.txt"};
         try {
@@ -26,17 +24,13 @@ class BackendApplicationTests {
                     .toString()
                     .replace("-", "")
                     .substring(0, 8);;
-            //findStudentMR.run("Rose", files, resultName);
             averageMR.run(true, files, resultName);
-//            minMR.run(files, resultName);
-
             HDFSUtils utils = new HDFSUtils();
-            utils.moveToRecord(resultName,"11", "avg");
+            utils.moveToRecord(resultName,null, "avg");
             System.out.println(utils.readContent(resultName + "-" + "avg"));
         } catch (IOException | InterruptedException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
-
     }
 
 }

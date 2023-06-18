@@ -13,12 +13,13 @@
 
   <a-modal v-model:visible="modalVisible" title="分析详情" @ok="modalVisible = false">
     <a-card style="text-align: center;">
-      <h4 v-for="item in content" style="text-align: left;">
-      {{ item }}
-    </h4>
+      <div class="record-content" style="height: 30vh; overflow: hidden auto;">
+        <h4 v-for="item in content" style="text-align: left;">
+          {{ item }}
+        </h4>
+      </div>
     </a-card>
   </a-modal>
-
 </template>
 <script lang="ts">
 import { UploadOutlined, InboxOutlined } from '@ant-design/icons-vue';
@@ -37,7 +38,7 @@ export default defineComponent({
   },
   setup() {
     let modalVisible = ref(false)
-    let content : Ref<string[]> = ref([])
+    let content: Ref<string[]> = ref([])
     const dataSource: Ref<DataItem[]> = ref([]);
 
     const columns = [
@@ -78,8 +79,8 @@ export default defineComponent({
           fileName: record.name
         }
       }).then((resp) => {
-        modalVisible.value = true     
-        let data:string = resp.data;
+        modalVisible.value = true
+        let data: string = resp.data;
         content.value = data.split("\n")
       })
     }

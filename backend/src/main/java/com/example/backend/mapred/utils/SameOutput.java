@@ -9,7 +9,6 @@ import java.io.IOException;
 public class SameOutput implements WritableComparable<SameOutput> {
 
     protected Text course;
-
     protected DoubleWritable score;
 
     public Text getCourse() {
@@ -38,7 +37,8 @@ public class SameOutput implements WritableComparable<SameOutput> {
     @Override
     public String toString() {
         return "course=" + course +
-                ", score=" + score;
+                ", score=" + score +
+                "  人数:";
     }
 
     @Override

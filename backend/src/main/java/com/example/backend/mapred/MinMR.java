@@ -61,11 +61,8 @@ public class MinMR {
     }
 
     public static class MinMapper extends Mapper<Object, Text, Text, DoubleWritable> {
-
         private Text course = new Text();
-
         private DoubleWritable min = new DoubleWritable();
-
         @Override
         protected void map(Object key, Text value, Mapper<Object, Text, Text, DoubleWritable>.Context context) throws IOException, InterruptedException {
             String[] split = value.toString().split("\n");
@@ -83,10 +80,8 @@ public class MinMR {
         }
     }
 
-
     public static class MinReduce extends Reducer<Text, DoubleWritable, Text, DoubleWritable> {
         private DoubleWritable result = new DoubleWritable();
-
         @Override
         protected void reduce(Text key, Iterable<DoubleWritable> values, Reducer<Text, DoubleWritable, Text, DoubleWritable>.Context context) throws IOException, InterruptedException {
             double min = Double.MAX_VALUE;
