@@ -62,10 +62,8 @@ public class CountPeopleMR {
     }
 
     public static class CountPeopleMapper extends Mapper<Object, Text, Text, IntWritable> {
-
         private Text course = new Text();
         private final static IntWritable one = new IntWritable(1);
-
         @Override
         protected void map(Object key, Text value, Mapper<Object, Text, Text, IntWritable>.Context context) throws IOException, InterruptedException {
             String[] split = value.toString().split("\n");
@@ -82,11 +80,8 @@ public class CountPeopleMR {
         }
     }
 
-
     public static class CountPeopleReduce extends Reducer<Text, IntWritable, Text, IntWritable> {
         private IntWritable result = new IntWritable();
-
-
         @Override
         protected void reduce(Text key, Iterable<IntWritable> values, Reducer<Text, IntWritable, Text, IntWritable>.Context context) throws IOException, InterruptedException {
             int sum  = 0;
@@ -97,6 +92,5 @@ public class CountPeopleMR {
             Text text = new Text(key.toString() + "  选修人数:");
             context.write(text,result);
         }
-
     }
 }

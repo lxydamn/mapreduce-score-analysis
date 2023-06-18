@@ -68,9 +68,7 @@ public class StatisticIntervalMR {
 
     public static class StaIntMapper extends Mapper<Object, Text, IntervalOutput, IntWritable> {
         private Text course = new Text();
-
         private final static IntWritable one = new IntWritable(1);
-
         @Override
         protected void map(Object key, Text value, Mapper<Object, Text, IntervalOutput, IntWritable>.Context context) throws IOException, InterruptedException {
             String[] split = value.toString().split("\n");
@@ -101,9 +99,7 @@ public class StatisticIntervalMR {
     }
 
     public static class StaIntReducer extends Reducer<IntervalOutput, IntWritable, IntervalOutput, IntWritable> {
-
         private IntWritable result = new IntWritable();
-
         @Override
         protected void reduce(IntervalOutput key, Iterable<IntWritable> values, Reducer<IntervalOutput, IntWritable, IntervalOutput, IntWritable>.Context context) throws IOException, InterruptedException {
             int sum = 0;

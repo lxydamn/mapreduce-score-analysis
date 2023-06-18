@@ -65,9 +65,7 @@ public class SamePeopleMR {
 
     public static class SamPeoMapper extends Mapper<Object, Text, SameOutput, IntWritable> {
         private Text course = new Text();
-
         private final static IntWritable one = new IntWritable(1);
-
         @Override
         protected void map(Object key, Text value, Mapper<Object, Text, SameOutput, IntWritable>.Context context) throws IOException, InterruptedException {
             String[] split = value.toString().split("\n");
@@ -86,9 +84,7 @@ public class SamePeopleMR {
     }
 
     public static class SamPeoReducer extends Reducer<SameOutput, IntWritable, SameOutput, IntWritable> {
-
         private IntWritable result = new IntWritable();
-
         @Override
         protected void reduce(SameOutput key, Iterable<IntWritable> values, Reducer<SameOutput, IntWritable, SameOutput, IntWritable>.Context context) throws IOException, InterruptedException {
             int sum = 0;

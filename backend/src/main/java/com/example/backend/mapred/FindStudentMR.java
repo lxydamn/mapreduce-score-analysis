@@ -69,9 +69,6 @@ public class FindStudentMR {
         private final Text name = new Text();
         private final Text courseAndScore = new Text();
 
-        /**
-         * 分解成绩文件内容，以（名字，（课程，成绩））输出
-         */
         @Override
         protected void map(Object key, Text value, Mapper<Object, Text, Text, Text>.Context context) throws IOException, InterruptedException {
             String[] split = value.toString().split("\n");
@@ -96,6 +93,7 @@ public class FindStudentMR {
         /**
          * 读出要查找的学生的名字
          */
+
         @Override
         protected void setup(Reducer<Text, Text, Text, NullWritable>.Context context) throws IOException, InterruptedException {
             student = context.getConfiguration().get("student");

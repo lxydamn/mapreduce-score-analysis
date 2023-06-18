@@ -107,12 +107,7 @@ public class AverageMR {
     }
 
 
-    public static class avgReducer extends
-            Reducer<AverageOutputDesc, DoubleWritable, AverageOutputDesc, NullWritable>
-    {
-        /**
-         *  将values成绩求和并求平均
-         */
+    public static class avgReducer extends Reducer<AverageOutputDesc, DoubleWritable, AverageOutputDesc, NullWritable> {
         @Override
         protected void reduce(
                 AverageOutputDesc key,

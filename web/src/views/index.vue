@@ -44,9 +44,11 @@
 
     <a-modal v-model:visible="modalVisible" title="分析结果" @ok="modalVisible = false">
       <a-card style="text-align: center;">
-        <h4 v-for="item in content" style="text-align: left;">
-          {{ item }}
-        </h4>
+        <div class="record-content" style="height: 30vh; overflow: hidden auto;">
+          <h4 v-for="item in content" style="text-align: left;">
+            {{ item }}
+          </h4>
+        </div>
       </a-card>
     </a-modal>
 
@@ -118,6 +120,10 @@ export default defineComponent({
         value: '统计区间',
         label: '统计区间',
       },
+      {
+        value: '统计各个分数人数',
+        label: '统计各个分数人数',
+      }
     ]);
 
     const state = reactive<{
@@ -393,6 +399,37 @@ export default defineComponent({
           state.loading = true;
           axios({
             url: 'http://localhost:8080/api/statisticInterval/map',
+            method: 'POST',
+            params: {
+              files: state.selectedRowKeys.toString(),
+            }
+          })
+            .then((resp) => {
+              if (resp.data.error_info === "success") {
+                message.success('计算成功');
+                axios({
+                  url: 'http://localhost:8080/api/record/content',
+                  method: 'GET',
+                  params: {
+                    fileName: resp.data.filePath
+                  }
+                }).then((resp) => {
+                  modalVisible.value = true
+                  let data: string = resp.data;
+                  content.value = data.split("\n")
+                })
+              } else {
+                message.error(resp.data.error_info);
+              }
+              setTimeout(() => {
+                state.loading = false;
+                state.selectedRowKeys = [];
+              }, 1000);
+            })
+        } else if (caulMethod.value === "统计各个分数人数") {
+          state.loading = true;
+          axios({
+            url: 'http://localhost:8080/api/samePeople/map',
             method: 'POST',
             params: {
               files: state.selectedRowKeys.toString(),

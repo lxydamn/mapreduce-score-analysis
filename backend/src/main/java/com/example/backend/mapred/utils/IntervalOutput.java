@@ -9,9 +9,7 @@ import java.io.DataOutput;
 import java.io.IOException;
 
 public class IntervalOutput implements WritableComparable<IntervalOutput> {
-
     protected Text course;
-
     protected IntWritable type;
 
     public Text getCourse() {

@@ -62,11 +62,8 @@ public class MaxMR {
     }
 
     public static class MaxMapper extends Mapper<Object, Text, Text, DoubleWritable> {
-
         private Text course = new Text();
-
         private DoubleWritable max = new DoubleWritable(Double.MIN_VALUE);
-
         @Override
         protected void map(Object key, Text value, Mapper<Object, Text, Text, DoubleWritable>.Context context) throws IOException, InterruptedException {
             String[] split = value.toString().split("\n");
@@ -88,7 +85,6 @@ public class MaxMR {
     public static class MaxReduce extends Reducer<Text, DoubleWritable, Text, DoubleWritable> {
         private DoubleWritable result = new DoubleWritable();
 
-
         @Override
         protected void reduce(Text key, Iterable<DoubleWritable> values, Reducer<Text, DoubleWritable, Text, DoubleWritable>.Context context) throws IOException, InterruptedException {
             double max = Double.MIN_VALUE;
@@ -99,6 +95,5 @@ public class MaxMR {
             Text text = new Text(key.toString() + "  最高分:");
             context.write(text,result);
         }
-
     }
 }
